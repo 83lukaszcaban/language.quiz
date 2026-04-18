@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Language Learning Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 500px;
+      margin: 50px auto;
+      text-align: center;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+    }
+    #result {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Translate the word</h2>
+  <p id="word"></p>
+
+  <input type="text" id="answer" placeholder="Your translation">
+  <br>
+  <button onclick="submitAnswer()">Submit</button>
+
+  <p id="result"></p>
+  <button id="restartBtn" onclick="startQuiz()" style="display:none;">Restart</button>
+
+  <script>
+    let wordData = {};
+    
+    fetch("words.json")
+      .then(response => response.json())
+      .then(data => {
+        wordData = data;
+        startQuiz();
+      });
+
+    let words = [];
+    let currentIndex = 0;
+    let correctAnswers = 0;
+
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+    function startQuiz() {
+      words = shuffle(Object.entries(wordData));
+      currentIndex = 0;
+      correctAnswers = 0;
+
+      document.getElementById("restartBtn").style.display = "none";
+      document.getElementById("result").textContent = "";
+      document.getElementById("answer").value = "";
+
+      showWord();
+    }
+
+    function showWord() {
+      if (currentIndex < words.length) {
+        document.getElementById("word").textContent = words[currentIndex][0];
+      } else {
+        endQuiz();
+      }
+    }
+
+    function submitAnswer() {
+      const userAnswer = document.getElementById("answer").value.trim().toLowerCase();
+      const correctAnswer = words[currentIndex][1].toLowerCase();
+
+      if (userAnswer === correctAnswer) {
+        correctAnswers++;
+        document.getElementById("result").textContent = "✅ Correct!";
+      } else {
+        document.getElementById("result").textContent =
+          "❌ Incorrect! Correct answer: " + correctAnswer;
+      }
+
+      currentIndex++;
+      document.getElementById("answer").value = "";
+
+      setTimeout(showWord, 1000);
+    }
+
+    function endQuiz() {
+      document.getElementById("word").textContent = "Quiz finished!";
+      document.getElementById("result").textContent =
+        `Score: ${correctAnswers} / ${words.length}`;
+
+      document.getElementById("restartBtn").style.display = "inline-block";
+    }
+  </script>
+
+</body>
+</html>
