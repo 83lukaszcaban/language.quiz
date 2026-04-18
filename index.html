@@ -34,18 +34,28 @@
   <button id="restartBtn" onclick="startQuiz()" style="display:none;">Restart</button>
 
   <script>
-    let wordData = {};
     
-    fetch("words.json")
-      .then(response => response.json())
-      .then(data => {
-        wordData = data;
-        startQuiz();
-      });
-
+    let wordData = {};
     let words = [];
     let currentIndex = 0;
     let correctAnswers = 0;
+    
+    fetch("./words.json")
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Failed to load JSON");
+        }
+        return response.json();
+      })
+      .then(data => {
+        wordData = data;
+        startQuiz();
+      })
+      .catch(err => {
+        document.getElementById("result").textContent =
+          "Error loading words.json";
+        console.error(err);
+      });
 
     function shuffle(array) {
       return array.sort(() => Math.random() - 0.5);
